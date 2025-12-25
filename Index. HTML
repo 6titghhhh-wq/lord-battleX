@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lord Battle - Players</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+</head>
+<body class="bg-[#0b0f1a] text-white">
+    <div id="homeBanner" class="w-full h-48 bg-slate-800 overflow-hidden shadow-lg">
+        <img id="activeBanner" src="" class="w-full h-full object-cover hidden">
+    </div>
+
+    <div class="p-4">
+        <h2 class="text-xl font-bold mb-4">Upcoming Matches</h2>
+        <div id="matchList" class="space-y-4">
+            </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+          apiKey: "AIzaSyCurWhNMj-z586p5SxqZSmEDZ8Zi-oGN6o",
+          authDomain: "battle-de8af.firebaseapp.com",
+          databaseURL: "https://battle-de8af-default-rtdb.firebaseio.com",
+          projectId: "battle-de8af",
+          storageBucket: "battle-de8af.firebasestorage.app",
+          messagingSenderId: "712422193110",
+          appId: "1:712422193110:web:b5e28f3f7402d587db1677"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Banner Load
+        db.ref('banners').on('value', snap => {
+            const data = snap.val();
+            if(data) {
+                const last = Object.values(data).pop();
+                document.getElementById('activeBanner').src = last.url;
+                document.getElementById('activeBanner').classList.remove('hidden');
+            }
+        });
+
+        // Matches Load
+        db.ref('matches').on('value', snap => {
+            const list = document.getElementById('matchList');
+            list.innerHTML = '';
+            const data = snap.val();
+            if(data) {
+                for(let id in data) {
+                    const m = data[id];
+                    list.innerHTML += `
+                    <div class="bg-slate-800 p-4 rounded-xl border border-white/10">
+                        <div class="flex gap-4">
+                            <img src="${m.logo}" class="w-16 h-16 rounded-lg object-cover">
+                            <div>
+                                <h3 class="font-bold text-lg">${m.title}</h3>
+                                <p class="text-blue-400 text-sm font-bold">${m.category}</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 mt-4 text-center py-2 bg-black/30 rounded-lg text-sm italic font-bold">
+                            <div><p class="text-xs text-slate-400 uppercase font-normal">Prize</p>₹${m.prize}</div>
+                            <div><p class="text-xs text-slate-400 uppercase font-normal">Per Kill</p>₹${m.perkill}</div>
+                            <div><p class="text-xs text-slate-400 uppercase font-normal">Entry Fee</p><span class="text-green-400">₹${m.entry}</span></div>
+                        </div>
+                        <button onclick="alert('Rules: ${m.rules}')" class="w-full mt-4 bg-blue-600 py-3 rounded-lg font-bold shadow-lg shadow-blue-500/20 uppercase tracking-widest">Join Now</button>
+                    </div>`;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
